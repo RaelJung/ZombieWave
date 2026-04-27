@@ -7,6 +7,7 @@ class Main : JavaPlugin() {
     lateinit var gameManager: GameManager
 
     override fun onEnable() {
+        saveDefaultConfig()
         gameManager = GameManager(this)
         getCommand("zw")?.setExecutor(Commands(this))
         logger.info("ZombieWave 플러그인 시작!")
