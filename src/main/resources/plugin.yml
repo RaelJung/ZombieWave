@@ -1,0 +1,9 @@
+name: ZombieWave
+version: 1.0
+main: com.gamja.zombiewave.Main
+api-version: "1.21"
+
+commands:
+  zw:
+    description: ZombieWaver 커맨드
+    usage: /zw <join|start>
