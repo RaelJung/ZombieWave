@@ -25,15 +25,14 @@ class GameManager(private val plugin: Main) {
             player.gameMode = GameMode.SURVIVAL
             player.health = player.maxHealth
             player.foodLevel = 20
-            player.sendMessage("§a게임 시작! 좀비를 막으세요 :)")
+            player.sendMessage(plugin.config.getString("messages.game-start") ?: "게임 시작!")
         }
-        plugin.logger.info("게임 시작! 플레이어 수: ${players.size}")
     }
 
     fun endGame(){
         state = GameState.ENDING
         players.forEach { player ->
-            player.sendMessage("§c게임 종료!")
+            player.sendMessage(plugin.config.getString("messages.game-end") ?: "게임 종료!")
             player.gameMode = GameMode.ADVENTURE
         }
         state = GameState.WAITING
@@ -42,10 +41,12 @@ class GameManager(private val plugin: Main) {
 
     fun addPlayer(player: Player) {
         if(state != GameState.WAITING){
-            player.sendMessage("§c게임이 이미 진행 중입니다!")
+            player.sendMessage(plugin.config.getString("messages.already-running") ?: "이미 진행 중!")
             return
         }
         players.add(player)
-        player.sendMessage("§e게임에 참가했습니다! 현재 ${players.size}명")
+        val msg = (plugin.config.getString("messages.join") ?: "참가! {count}명")
+            .replace("{count}", players.size.toString())
+        player.sendMessage(msg)
     }
 }

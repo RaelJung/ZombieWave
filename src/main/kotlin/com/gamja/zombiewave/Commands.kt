@@ -13,20 +13,20 @@ class Commands(private val plugin: Main) : CommandExecutor {
         label: String,
         args: Array<out String>
     ): Boolean {
-        if(sender !is Player) {
-            sender.sendMessage("§c플레이어만 사용할 수 있습니다!")
+        if(sender !is Player){
+            sender.sendMessage(plugin.config.getString("messages.player-only") ?: "플레이어만 가능!")
             return true
         }
 
-        if(args.isEmpty()) {
-            sender.sendMessage("§e사용법: /zw join | /zw start")
+        if(args.isEmpty()){
+            sender.sendMessage(plugin.config.getString("messages.usage") ?: "사용법 없음")
             return true
         }
 
-        when(args[0].lowercase()) {
+        when(args[0].lowercase()){
             "join" -> plugin.gameManager.addPlayer(sender)
-            "start" -> plugin.gameManager.addPlayer(sender)
-            else -> sender.sendMessage("§c알 수 없는 명령어입니다.")
+            "start" -> plugin.gameManager.startGame()
+            else -> sender.sendMessage(plugin.config.getString("messages.unknown-command") ?: "알 수 없는 명령어!")
         }
 
         return true
