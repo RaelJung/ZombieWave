@@ -14,3 +14,4 @@ messages:
   game-over: "§c전원 사망! 게임 오버!"
   countdown: "§e게임 시작까지 {time}초!"
   countdown-go: "§a§lGO!"
+  wave-clear: "§a웨이브 {wave} 클리어! 보상을 받았습니다!"

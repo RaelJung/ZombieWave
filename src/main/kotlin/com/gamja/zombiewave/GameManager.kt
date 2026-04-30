@@ -18,6 +18,7 @@ class GameManager(private val plugin: Main) {
     val waveManager = WaveManager(plugin)
     val playerManager = PlayerManager()
     val scoreboardManager = ScoreboardManager(plugin)
+    val rewardManager = RewardManager(plugin)
 
     fun startGame(){
         //이미 진행중이면 새로 시작 X
