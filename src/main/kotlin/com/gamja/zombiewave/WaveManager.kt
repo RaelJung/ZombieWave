@@ -19,6 +19,13 @@ class WaveManager(private val plugin: Main) {
         currentWave++
         val zombieCount = currentWave * 3  // 웨이브마다 좀비 3마리씩 증가
 
+        // 1웨이브 이후부터 이전 웨이브 보상 지급
+        if (currentWave > 1) {
+            plugin.gameManager.players.forEach { player ->
+                plugin.gameManager.rewardManager.giveReward(player, currentWave - 1)
+            }
+        }
+
         plugin.gameManager.players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.wave-start")
                 ?.replace("{wave}", currentWave.toString()) ?: "웨이브 $currentWave 시작!")
