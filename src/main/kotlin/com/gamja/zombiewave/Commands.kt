@@ -5,6 +5,7 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
+/*커맨드 관리*/
 class Commands(private val plugin: Main) : CommandExecutor {
 
     override fun onCommand(

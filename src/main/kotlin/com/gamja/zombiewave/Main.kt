@@ -10,6 +10,7 @@ class Main : JavaPlugin() {
         saveDefaultConfig()
         gameManager = GameManager(this)
         getCommand("zw")?.setExecutor(Commands(this))
+        server.pluginManager.registerEvents(EventListener(this), this)
         logger.info("ZombieWave 플러그인 시작!")
     }
 

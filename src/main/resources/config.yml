@@ -1,8 +1,9 @@
 messages:
-  game-start: "§a게임 시작! 좀비를 막으세요 :)"
+  game-start: "§a게임 시작! 좀비를 막아라!"
   game-end: "§c게임 종료!"
   join: "§e게임에 참가했습니다! 현재 {count}명"
   already-running: "§c게임이 이미 진행 중입니다!"
   player-only: "§c플레이어만 사용할 수 있습니다!"
   usage: "§e사용법: /zw join | /zw start"
   unknown-command: "§c알 수 없는 명령어입니다."
+  wave-start: "§6웨이브 {wave} 시작!"
