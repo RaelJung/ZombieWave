@@ -2,6 +2,7 @@ package com.gamja.zombiewave
 
 import org.bukkit.Location
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Zombie
 import org.bukkit.scheduler.BukkitRunnable
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -11,6 +12,8 @@ class WaveManager(private val plugin: Main) {
 
     var currentWave = 0
     private var waveTask: BukkitRunnable? = null
+    private val maxWave = 5
+    private val survivalTime = 30  // 마지막 웨이브 후 버텨야 할 시간 (초)
 
     fun startWave() {
         currentWave++
@@ -24,6 +27,12 @@ class WaveManager(private val plugin: Main) {
 
         spawnZombies(zombieCount)
 
+        // 마지막 웨이브면 생존 타이머 시작
+        if (currentWave >= maxWave) {
+            startSurvivalTimer()
+            return
+        }
+
         // 다음 웨이브 30초 후 자동 시작
         waveTask = object : BukkitRunnable() {
             override fun run() {
@@ -33,6 +42,45 @@ class WaveManager(private val plugin: Main) {
             }
         }
         waveTask?.runTaskLater(plugin, 20L * 30)  // 20틱 = 1초
+    }
+
+    //
+    private fun startSurvivalTimer() {
+        plugin.gameManager.players.forEach { player ->
+            player.sendMessage(
+                plugin.config.getString("messages.last-wave")
+                    ?.replace("{time}", survivalTime.toString()) ?: "마지막 웨이브! ${survivalTime}초를 버텨라!"
+            )
+        }
+
+        var remaining = survivalTime
+
+        waveTask = object : BukkitRunnable() {
+            override fun run() {
+                if (plugin.gameManager.state != GameState.RUNNING) {
+                    cancel()
+                    return
+                }
+
+                remaining--
+
+                // 10초, 5초, 3초, 2초, 1초 알림
+                if (remaining in listOf(10, 5, 3, 2, 1)) {
+                    plugin.gameManager.players.forEach { player ->
+                        player.sendMessage(
+                            plugin.config.getString("messages.survival-remaining")
+                                ?.replace("{time}", remaining.toString()) ?: "${remaining}초 남았다!"
+                        )
+                    }
+                }
+
+                if (remaining <= 0) {
+                    cancel()
+                    plugin.gameManager.winGame()
+                }
+            }
+        }
+        waveTask?.runTaskTimer(plugin, 20L, 20L)
     }
 
     //좀비 구분 위해 붉은 이름표
