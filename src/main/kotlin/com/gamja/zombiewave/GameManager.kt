@@ -58,4 +58,15 @@ class GameManager(private val plugin: Main) {
             .replace("{count}", players.size.toString())
         player.sendMessage(msg)
     }
+
+    fun winGame() {
+        state = GameState.ENDING
+        waveManager.stopWave()
+        players.forEach { player ->
+            player.sendMessage(plugin.config.getString("messages.win") ?: "클리어!")
+            player.gameMode = GameMode.ADVENTURE
+        }
+        state = GameState.WAITING
+        players.clear()
+    }
 }
