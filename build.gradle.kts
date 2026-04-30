@@ -19,4 +19,11 @@ tasks.jar {
     from(sourceSets.main.get().resources)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+
+    doLast {
+        copy {
+            from(archiveFile)
+            into("C:\\Users\\a\\Documents\\my-server\\plugins")
+        }
+    }
 }

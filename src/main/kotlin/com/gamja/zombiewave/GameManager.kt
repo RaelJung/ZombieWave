@@ -10,9 +10,13 @@ enum class GameState{
     ENDING      //종료 중
 }
 
+/*게임 상태 관리*/
 class GameManager(private val plugin: Main) {
     var state: GameState = GameState.WAITING
     val players: MutableList<Player> = mutableListOf()
+    val waveManager = WaveManager(plugin)
+    val playerManager = PlayerManager()
+    val scoreboardManager = ScoreboardManager(plugin)
 
     fun startGame(){
         //이미 진행중이면 새로 시작 X
@@ -26,11 +30,16 @@ class GameManager(private val plugin: Main) {
             player.health = player.maxHealth
             player.foodLevel = 20
             player.sendMessage(plugin.config.getString("messages.game-start") ?: "게임 시작!")
+            scoreboardManager.update(player)
         }
+        waveManager.startWave()  //게임 시작하면 웨이브 시작
     }
 
     fun endGame(){
         state = GameState.ENDING
+        waveManager.stopWave()  //웨이브 중단
+        waveManager.stopWave()
+        playerManager.reset()
         players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.game-end") ?: "게임 종료!")
             player.gameMode = GameMode.ADVENTURE
