@@ -3,6 +3,9 @@ package com.gamja.zombiewave
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.scheduler.BukkitRunnable
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.title.Title
+import java.time.Duration
 
 //상태 관리
 enum class GameState{
@@ -47,6 +50,7 @@ class GameManager(private val plugin: Main) {
                         player.foodLevel = 20
                         player.sendMessage(plugin.config.getString("messages.game-start") ?: "게임 시작!")
                         player.sendMessage(plugin.config.getString("messages.countdown-go") ?: "GO!")
+                        showTitle(player, "title-game-start", "title-game-start-sub")
                         scoreboardManager.update(player)
                     }
                     waveManager.startWave()
@@ -62,6 +66,7 @@ class GameManager(private val plugin: Main) {
         clearZombies()  //맵에서 좀비 클리어
         players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.game-end") ?: "게임 종료!")
+            showTitle(player, "title-game-over", "title-game-over-sub")
             player.gameMode = GameMode.ADVENTURE
             scoreboardManager.clear(player)
         }
@@ -86,6 +91,7 @@ class GameManager(private val plugin: Main) {
         clearZombies()  //맵에서 좀비 클리어
         players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.win") ?: "클리어!")
+            showTitle(player, "title-win", "title-win-sub")
             player.gameMode = GameMode.ADVENTURE
             scoreboardManager.clear(player)
         }
@@ -98,5 +104,25 @@ class GameManager(private val plugin: Main) {
         players.firstOrNull()?.world?.entities
             ?.filter { it is org.bukkit.entity.Zombie && it.customName() != null }  //웨이브로 생성된 좀비만 지우도록
             ?.forEach { it.remove() }
+    }
+
+    //WaveManager.kt에 사용하기 때문에 internal
+    internal fun showTitle(player: Player, titleKey: String, subtitleKey: String, vararg placeholders: Pair<String, String>) {
+        var titleText = plugin.config.getString("messages.$titleKey") ?: ""
+        var subText = plugin.config.getString("messages.$subtitleKey") ?: ""
+        placeholders.forEach { (key, value) ->
+            titleText = titleText.replace("{$key}", value)
+            subText = subText.replace("{$key}", value)
+        }
+        val title = Title.title(
+            Component.text(titleText),
+            Component.text(subText),
+            Title.Times.times(
+                Duration.ofMillis(500),    //페이드 인
+                Duration.ofSeconds(2),      //유지
+                Duration.ofMillis(500)  //페이드 아웃
+            )
+        )
+        player.showTitle(title)
     }
 }

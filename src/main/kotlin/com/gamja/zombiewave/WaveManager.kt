@@ -31,6 +31,7 @@ class WaveManager(private val plugin: Main) {
         plugin.gameManager.players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.wave-start")
                 ?.replace("{wave}", currentWave.toString()) ?: "웨이브 $currentWave 시작!")
+            plugin.gameManager.showTitle(player, "title-wave", "title-wave-sub", "wave" to currentWave.toString())
             plugin.gameManager.scoreboardManager.update(player)
         }
 
