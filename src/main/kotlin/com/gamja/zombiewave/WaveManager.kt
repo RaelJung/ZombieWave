@@ -6,6 +6,8 @@ import org.bukkit.entity.Zombie
 import org.bukkit.scheduler.BukkitRunnable
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 /*웨이브 시스템 관리*/
 class WaveManager(private val plugin: Main) {
@@ -17,7 +19,7 @@ class WaveManager(private val plugin: Main) {
 
     fun startWave() {
         currentWave++
-        val zombieCount = currentWave * 3  // 웨이브마다 좀비 3마리씩 증가
+        val zombieCount = currentWave * 2  // 웨이브마다 좀비 3마리씩 증가
 
         // 1웨이브 이후부터 이전 웨이브 보상 지급
         if (currentWave > 1) {
@@ -93,13 +95,23 @@ class WaveManager(private val plugin: Main) {
     //좀비 구분 위해 붉은 이름표
     //[웨이브 N 좀비]
     private fun spawnZombies(count: Int) {
-        repeat(count) {
-            plugin.gameManager.players.forEach { player ->
-                val loc = getRandomLocation(player.location)
-                val zombie = player.world.spawnEntity(loc, EntityType.ZOMBIE)
-                zombie.customName(Component.text("[웨이브 $currentWave] 좀비", NamedTextColor.RED))
-                zombie.isCustomNameVisible = true
-            }
+        val players = plugin.gameManager.players
+        if(players.isEmpty()) return    //다 죽었으면 소환 안 되도록
+
+        //현재 월드에 좀비 너무 많으면 스폰 중단
+        val world = players[0].world
+        val existingZombies = world.entities.count { it is org.bukkit.entity.Zombie && it.customName() != null }
+        if (existingZombies > 50) return    //최대 49
+
+        //forEach 중첩 제거 -> count마리만 스폰 되도록!
+        repeat(count) { index ->
+            val player = players[index % players.size]
+            val loc = getRandomLocation(player.location)
+            //addPositionEffect를 위해 asZombie로 캐스팅 해주기(spawnEntity -> Entity 타입 리턴)
+            val zombie = player.world.spawnEntity(loc, EntityType.ZOMBIE) as Zombie
+            zombie.customName(Component.text("[웨이브 $currentWave] 좀비", NamedTextColor.RED))
+            zombie.isCustomNameVisible = true
+            zombie.addPotionEffect(PotionEffect(PotionEffectType.GLOWING, Int.MAX_VALUE, 0, false, false))  //발광 효과
         }
     }
 
@@ -115,5 +127,10 @@ class WaveManager(private val plugin: Main) {
         waveTask?.cancel()
         waveTask = null
         currentWave = 0
+
+        //웨이브 종료 후, 월드에 남아있는 플러그인 소환 좀비 전부 제거
+        plugin.gameManager.players.firstOrNull()?.world?.entities
+            ?.filter { it is Zombie && it.customName() != null }
+            ?.forEach { it.remove() }
     }
 }

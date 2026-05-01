@@ -38,9 +38,7 @@ class EventListener(private val plugin: Main) : Listener {
         }
 
         if (plugin.gameManager.players.isEmpty()) {
-            plugin.gameManager.players.forEach {
-                it.sendMessage(plugin.config.getString("messages.game-over") ?: "게임 오버!")
-            }
+            player.sendMessage(plugin.config.getString("messages.game-over") ?: "게임 오버!")
             plugin.gameManager.endGame()
         }
     }
