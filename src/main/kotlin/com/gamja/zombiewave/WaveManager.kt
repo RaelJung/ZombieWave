@@ -93,13 +93,21 @@ class WaveManager(private val plugin: Main) {
     //좀비 구분 위해 붉은 이름표
     //[웨이브 N 좀비]
     private fun spawnZombies(count: Int) {
-        repeat(count) {
-            plugin.gameManager.players.forEach { player ->
-                val loc = getRandomLocation(player.location)
-                val zombie = player.world.spawnEntity(loc, EntityType.ZOMBIE)
-                zombie.customName(Component.text("[웨이브 $currentWave] 좀비", NamedTextColor.RED))
-                zombie.isCustomNameVisible = true
-            }
+        val players = plugin.gameManager.players
+        if(players.isEmpty()) return    //다 죽었으면 소환 안 되도록
+
+        //현재 월드에 좀비 너무 많으면 스폰 중단
+        val world = players[0].world
+        val existingZombies = world.entities.count { it is org.bukkit.entity.Zombie && it.customName() != null }
+        if (existingZombies > 50) return    //최대 49
+
+        //forEach 중첩 제거 -> count마리만 스폰 되도록!
+        repeat(count) { index ->
+            val player = players[index % players.size]
+            val loc = getRandomLocation(player.location)
+            val zombie = player.world.spawnEntity(loc, EntityType.ZOMBIE)
+            zombie.customName(Component.text("[웨이브 $currentWave] 좀비", NamedTextColor.RED))
+            zombie.isCustomNameVisible = true
         }
     }
 
@@ -115,5 +123,10 @@ class WaveManager(private val plugin: Main) {
         waveTask?.cancel()
         waveTask = null
         currentWave = 0
+
+        //웨이브 종료 후, 월드에 남아있는 플러그인 소환 좀비 전부 제거
+        plugin.gameManager.players.firstOrNull()?.world?.entities
+            ?.filter { it is Zombie && it.customName() != null }
+            ?.forEach { it.remove() }
     }
 }
