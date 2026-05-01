@@ -58,11 +58,12 @@ class GameManager(private val plugin: Main) {
     fun endGame(){
         state = GameState.ENDING
         waveManager.stopWave()  //웨이브 중단
-        waveManager.stopWave()
         playerManager.reset()
+        clearZombies()  //맵에서 좀비 클리어
         players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.game-end") ?: "게임 종료!")
             player.gameMode = GameMode.ADVENTURE
+            scoreboardManager.clear(player)
         }
         state = GameState.WAITING
         players.clear()
@@ -82,11 +83,20 @@ class GameManager(private val plugin: Main) {
     fun winGame() {
         state = GameState.ENDING
         waveManager.stopWave()
+        clearZombies()  //맵에서 좀비 클리어
         players.forEach { player ->
             player.sendMessage(plugin.config.getString("messages.win") ?: "클리어!")
             player.gameMode = GameMode.ADVENTURE
+            scoreboardManager.clear(player)
         }
         state = GameState.WAITING
         players.clear()
+    }
+
+    //맵에서 소환된 좀비 제거
+    private fun clearZombies() {
+        players.firstOrNull()?.world?.entities
+            ?.filter { it is org.bukkit.entity.Zombie && it.customName() != null }  //웨이브로 생성된 좀비만 지우도록
+            ?.forEach { it.remove() }
     }
 }

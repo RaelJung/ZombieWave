@@ -17,7 +17,7 @@ class WaveManager(private val plugin: Main) {
 
     fun startWave() {
         currentWave++
-        val zombieCount = currentWave * 3  // 웨이브마다 좀비 3마리씩 증가
+        val zombieCount = currentWave * 2  // 웨이브마다 좀비 3마리씩 증가
 
         // 1웨이브 이후부터 이전 웨이브 보상 지급
         if (currentWave > 1) {
