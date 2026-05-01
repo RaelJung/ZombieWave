@@ -6,6 +6,8 @@ import org.bukkit.entity.Zombie
 import org.bukkit.scheduler.BukkitRunnable
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 /*웨이브 시스템 관리*/
 class WaveManager(private val plugin: Main) {
@@ -105,9 +107,11 @@ class WaveManager(private val plugin: Main) {
         repeat(count) { index ->
             val player = players[index % players.size]
             val loc = getRandomLocation(player.location)
-            val zombie = player.world.spawnEntity(loc, EntityType.ZOMBIE)
+            //addPositionEffect를 위해 asZombie로 캐스팅 해주기(spawnEntity -> Entity 타입 리턴)
+            val zombie = player.world.spawnEntity(loc, EntityType.ZOMBIE) as Zombie
             zombie.customName(Component.text("[웨이브 $currentWave] 좀비", NamedTextColor.RED))
             zombie.isCustomNameVisible = true
+            zombie.addPotionEffect(PotionEffect(PotionEffectType.GLOWING, Int.MAX_VALUE, 0, false, false))  //발광 효과
         }
     }
 
